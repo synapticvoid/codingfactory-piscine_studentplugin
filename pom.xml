@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>fr.rphstudio</groupId>
+    <artifactId>Student1</artifactId>
+    <version>2.1</version>
+    <packaging>jar</packaging>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>14</maven.compiler.source>
+        <maven.compiler.target>14</maven.compiler.target>
+        <codingdojo.version>2.1</codingdojo.version>
+    </properties>
+    
+    <dependencies>
+        <dependency>
+            <groupId>fr.rphstudio</groupId>
+            <artifactId>codingdojo</artifactId>
+            <version>${codingdojo.version}</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/resources/codingdojo.jar</systemPath>
+        </dependency>    
+    </dependencies>
+    
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.8</version>
+                <executions>
+                    <execution>
+                        <id>download</id>
+                        <phase>site</phase>
+                        <configuration>
+                            <tasks>
+                                <exec executable="/bin/bash">
+                                    <arg value="resources/sync_dojo_jars.sh" />
+                                    <arg value="-a" />
+                                    <arg value="download" />
+                                    <arg value="-i" />
+                                    <arg value="${project.artifactId}" />
+                                    <arg value="-j" />
+                                    <arg value="${project.build.directory}/${project.build.finalName}.jar" />
+                                </exec>
+                                <!--<exec executable="cmd">
+                                    <arg value="/C"/>
+                                    <arg value="upload.bat" />
+                                    <arg value="download" />
+                                    <arg value="${project.build.directory}/${project.build.finalName}.jar" />
+                                    <arg value="${project.build.finalName}.jar" />
+                                    <arg value="${project.artifactId}" />
+                                </exec>-->
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>upload</id>
+                        <phase>deploy</phase>
+                        <configuration>
+                            <tasks>
+                                <exec executable="/bin/bash">
+                                    <arg value="resources/sync_dojo_jars.sh" />
+                                    <arg value="-a" />
+                                    <arg value="upload" />
+                                    <arg value="-i" />
+                                    <arg value="${project.artifactId}" />
+                                    <arg value="-j" />
+                                    <arg value="${project.build.directory}/${project.build.finalName}-p.jar" />
+                                </exec>
+                                <!--<exec executable="cmd">
+                                    <arg value="/C"/>
+                                    <arg value="upload.bat" />
+                                    <arg value="upload" />
+                                    <arg value="${project.build.directory}/${project.build.finalName}.jar" />
+                                    <arg value="${project.build.finalName}.jar" />
+                                    <arg value="${project.artifactId}" />
+                                </exec>-->
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <phase>install</phase>
+                        <configuration>
+                            <tasks>
+                                
+                                <copy todir="${project.basedir}/resources/students">
+                                    <fileset dir="target">
+                                        <include name="**/${project.artifactId}*-p.jar"/>
+                                    </fileset>
+                                </copy>
+                                
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.github.wvengen</groupId>
+                <artifactId>proguard-maven-plugin</artifactId>
+                <version>2.3.1</version>
+                <executions>
+                    <execution>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>proguard</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <injar>${project.build.finalName}.jar</injar>
+                    <outjar>${project.build.finalName}-p.jar</outjar>
+                    <outputDirectory>${project.build.directory}</outputDirectory>
+                    <proguardInclude>${basedir}/proguard.conf</proguardInclude>
+                    <libs>
+                        <lib>${java.home}/lib/jrt-fs.jar</lib>
+                        <!--<lib>${java.home}/lib/rt.jar</lib>
+                        <lib>${java.home}/lib/jsse.jar</lib>-->
+                    </libs>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>14</source>
+                    <target>14</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
